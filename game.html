@@ -74,7 +74,7 @@ const messages=[
 const levelLengths=[2600,2800,3000,3200,3400,3500,3700,3900];
 const keys={left:false,right:false,jump:false,run:false};
 let state='title',level=0,camera=0,last=0,toastTimer=0,sound=true,muted=false;
-let player,platforms=[],bombs=[],powerups=[],checkpoints=[],decor=[],exitX=0,worldTime=0;
+let player,platforms=[],bombs=[],powerups=[],checkpoints=[],decor=[],hazards=[],exitX=0,worldTime=0;
 let collected=new Set(),journal=[],lives=3,score=0,checkpointX=80,gameTime=0,particles=[],messageIndex=0;
 let audioCtx=null;
 const saveKey='ankit_sarmistha_adventure_v1';
@@ -86,7 +86,7 @@ function jingle(){[523,659,784,1046].forEach((n,i)=>setTimeout(()=>beep(n,.16,'t
 function showToast(t){toastEl.textContent=t;toastEl.classList.add('show');toastTimer=2.4}
 function rand(seed){let x=Math.sin(seed*127.1+level*311.7)*43758.5453;return x-Math.floor(x)}
 function makeLevel(n){
- level=n;worldTime=0;camera=0;particles=[];platforms=[];bombs=[];powerups=[];checkpoints=[];decor=[];
+ level=n;worldTime=0;camera=0;particles=[];platforms=[];bombs=[];powerups=[];checkpoints=[];decor=[];hazards=[];
  let len=levelLengths[n],gapBase=[0,0,8,18,25,20,35,30][n];
  // Ground segments and platforms
  let x=0;platforms.push({x:0,y:510,w:len,h:90,ground:true});
@@ -100,6 +100,9 @@ function makeLevel(n){
  // A few deliberate stepping stones over shallow-looking gaps (ground remains safe)
  for(let i=0;i<Math.floor(len/440);i++){let px=390+i*440;platforms.push({x:px,y:430-(i%3)*22,w:110,h:17});}
  exitX=len-135;
+ // Obstacles: jump over thorn patches and patrol past cheeky little slimes.
+ for(let i=0;i<7;i++){let hx=520+i*(len-850)/7+rand(i+501)*70;hazards.push({x:hx,y:480,w:42,h:30,type:'spikes'});}
+ for(let i=0;i<4;i++){let ex=850+i*(len-1100)/4+rand(i+601)*55;hazards.push({x:ex,y:468,w:34,h:42,type:'slime',min:ex-65,max:ex+65,vx:75+rand(i+701)*35});}
  for(let i=0;i<18;i++){
   let bx=180+i*(len-330)/18+rand(i+40)*55;
   let by=380-rand(i+80)*125;
@@ -135,6 +138,10 @@ function update(dt){
  let oldY=player.y;player.x+=player.vx*dt;player.x=Math.max(0,Math.min(exitX+80,player.x));player.y+=player.vy*dt;player.onGround=false;
  for(let p of platforms){if(player.x+player.w>p.x&&player.x<p.x+p.w&&oldY+player.h<=p.y+8&&player.y+player.h>=p.y&&player.vy>=0){player.y=p.y-player.h;player.vy=0;player.onGround=true}}
  if(player.y>H+120){loseLife();return}
+ // Touching a thorn or roaming slime costs a heart; jumping and shields keep you safe.
+ for(let h of hazards){if(h.type==='slime'){h.x+=h.vx*dt;if(h.x<h.min||h.x+h.w>h.max){h.vx*=-1;h.x=Math.max(h.min,Math.min(h.max-h.w,h.x));}}
+  if(player.inv<=0&&rectHit({x:player.x+4,y:player.y+4,w:player.w-8,h:player.h-5},{x:h.x,y:h.y,w:h.w,h:h.h})){if(player.shield>0){player.shield=0;player.inv=1.1;showToast('✨ Love Shield blocked an obstacle!');}else{player.inv=1.2;loseLife();return;}}
+ }
  if(player.shield>0)player.shield-=dt;if(player.magnet>0)player.magnet-=dt;
  for(let b of bombs){if(b.got||collected.has(b.id))continue;let dx=(player.x+15)-b.x,dy=(player.y+20)-b.y,dist=Math.hypot(dx,dy);if(player.magnet>0&&dist<180){b.x+=dx*dt*2.3;b.y+=dy*dt*2.3}
   if(dist<29){b.got=true;collected.add(b.id);score+=b.special?50:20;let msg=messages[(level+(parseInt(b.id.split('-')[1])||0))%messages.length];journal.push(msg);showToast((b.special?'✨ SPECIAL LOVE BOMB! ':'💗 ')+msg);jingle();for(let i=0;i<18;i++)particles.push({x:b.x,y:b.y,vx:(rand(i+worldTime*10)-.5)*220,vy:(rand(i+30+worldTime*10)-.8)*220,t:.8});persist();updateHud()}}
@@ -146,7 +153,7 @@ function update(dt){
  if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)toastEl.classList.remove('show')}
  updateHud();
 }
-function loseLife(){if(player.shield>0){player.shield=0;player.y=300;player.vy=-180;return}lives--;beep(180,.25,'sawtooth');if(lives<=0){lives=3;player.x=checkpointX;player.y=350;showToast('A little reset! You have three more hearts.')}else{player.x=checkpointX;player.y=350;player.vx=0;player.vy=0;showToast('Oopsie! Back to your heart checkpoint 💗')}persist();updateHud()}
+function loseLife(){if(player.shield>0){player.shield=0;player.y=300;player.vy=-180;player.inv=1.2;return}lives--;player.inv=1.2;beep(180,.25,'sawtooth');if(lives<=0){lives=3;player.x=checkpointX;player.y=350;showToast('A little reset! You have three more hearts.')}else{player.x=checkpointX;player.y=350;player.vx=0;player.vy=0;showToast('Oopsie! Back to your heart checkpoint 💗')}persist();updateHud()}
 function finishGame(){state='finish';persist();jingle();showMenu('YOU FOUND YOUR WAY TO HER! ❤️',`<div style="font-size:52px">👦🏻 💗 👧🏻</div><h2>ANKIT + SARMISHTA</h2><p>Across eight worlds, countless jumps and every little love note, the best part of the adventure was reaching you.</p><p><b>The greatest treasure was never at the end of the journey.<br>It was you all along. ❤️</b></p><h2>Lots of love, from Ankit</h2>`,`<button id="again">Play our adventure again</button><button id="journalEnd" style="background:#a78ad7;box-shadow:0 5px 0 #7862a9">Read our Love Journal</button>`);document.getElementById('again').onclick=startNew;document.getElementById('journalEnd').onclick=()=>{state='journal';showJournal()}}
 function px(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
 function drawHeart(x,y,s,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x,y+s*.35);ctx.bezierCurveTo(x-s,y-s*.35,x-s*.8,y-s,x,y-s*.35);ctx.bezierCurveTo(x+s*.8,y-s,x+s,y-s*.35,x,y+s*.35);ctx.fill()}
@@ -162,6 +169,8 @@ function draw(){
  for(let d of decor){let x=d.x-camera;if(x<-30||x>W+30)continue;if(level===1){px(x,470,4,30,'#9c6c7b');drawHeart(x,460,d.s*.6,'#ff9fc6')}else if(level===5){drawHeart(x,250+d.y*.4,d.s*.5,'#d9ffff')}else if(level===7){px(x,480,8,25,'#8b5d84');drawHeart(x,470,d.s*.5,'#ffafd0')}else{px(x,492,5,8,['#fff0a8','#ff9bc2','#fff'][d.type%3]);}}
  // platforms / ground
  for(let p of platforms){let x=p.x-camera;if(x+p.w<0||x>W)continue;px(x,p.y,p.w,p.h,p.ground?pal[1]:pal[2]);px(x,p.y,p.w,7,p.ground?pal[3]:'#fff');if(!p.ground){for(let q=8;q<p.w-5;q+=18)px(x+q,p.y+9,8,4,'#e9b1d0')}}
+ // obstacles
+ for(let h of hazards){let x=h.x-camera;if(x<-60||x>W+60)continue;if(h.type==='spikes'){ctx.fillStyle='#8d547d';for(let q=0;q<3;q++){ctx.beginPath();ctx.moveTo(x+q*14,h.y+h.h);ctx.lineTo(x+q*14+7,h.y+2);ctx.lineTo(x+q*14+14,h.y+h.h);ctx.fill();}px(x,h.y+h.h-4,h.w,4,'#70486f');}else{ctx.fillStyle='#8157a8';ctx.beginPath();ctx.ellipse(x+17,h.y+25,17,17,0,0,Math.PI*2);ctx.fill();px(x+7,h.y+13,5,5,'#fff');px(x+21,h.y+13,5,5,'#fff');px(x+9,h.y+15,2,3,'#34294b');px(x+23,h.y+15,2,3,'#34294b');}}
  // checkpoints
  for(let c of checkpoints){let x=c.x-camera;px(x,440,5,70,'#fff5e9');drawHeart(x+9,438,13,c.hit?'#ffdb75':'#ff79b4')}
  // exit
