@@ -111,7 +111,9 @@ function makeLevel(n){
  powerups.push({x:len*.32,y:350,type:'shield',got:false},{x:len*.67,y:340,type:'magnet',got:false});
  checkpoints=[{x:len*.36,hit:false},{x:len*.70,hit:false}];
  for(let i=0;i<70;i++){decor.push({x:rand(i+100)*len,y:rand(i+200)*420,type:Math.floor(rand(i+300)*4),s:8+rand(i+400)*15})}
- player={x:n===level?Math.max(70,checkpointX):70,y:420,vx:0,vy:0,w:30,h:42,onGround:false,face:1,inv:0,shield:0,magnet:0,anim:0};
+ player={x:n===level?Math.max(70,checkpointX):70,y:420,vx:0,vy:0,w:30,h:42,onGround:false,face:1,inv:0,shield:0,magnet:0,boost:0,anim:0};
+ // A rare Super Mushroom appears in every world.
+ powerups.push({x:len*.50,y:390,type:'super',got:false});
  checkpointX=Math.max(70,Math.min(checkpointX,len*.72));
  updateHud();
 }
@@ -130,22 +132,22 @@ document.querySelectorAll('.touch button').forEach(b=>{let k=b.dataset.key;b.add
 function rectHit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
 function update(dt){
  if(state!=='play')return;worldTime+=dt;gameTime+=dt;player.anim+=dt*10;if(player.inv>0)player.inv-=dt;
- let accel=keys.run?1050:800,max=keys.run?330:245;
+ let boosted=player.boost>0;if(boosted)player.boost=Math.max(0,player.boost-dt);let accel=(keys.run?1050:800)*(boosted?1.45:1),max=(keys.run?330:245)*(boosted?1.65:1);
  if(keys.left){player.vx-=accel*dt;player.face=-1}else if(keys.right){player.vx+=accel*dt;player.face=1}else player.vx*=Math.pow(.001,dt);
  player.vx=Math.max(-max,Math.min(max,player.vx));
- if(keys.jump&&player.onGround){player.vy=-610;player.onGround=false;beep(420,.08,'square',.025)}
+ if(keys.jump&&player.onGround){player.vy=boosted?-790:-610;player.onGround=false;beep(420,.08,'square',.025)}
  player.vy+=1500*dt;player.vy=Math.min(player.vy,850);
  let oldY=player.y;player.x+=player.vx*dt;player.x=Math.max(0,Math.min(exitX+80,player.x));player.y+=player.vy*dt;player.onGround=false;
  for(let p of platforms){if(player.x+player.w>p.x&&player.x<p.x+p.w&&oldY+player.h<=p.y+8&&player.y+player.h>=p.y&&player.vy>=0){player.y=p.y-player.h;player.vy=0;player.onGround=true}}
  if(player.y>H+120){loseLife();return}
  // Touching a thorn or roaming slime costs a heart; jumping and shields keep you safe.
  for(let h of hazards){if(h.type==='slime'){h.x+=h.vx*dt;if(h.x<h.min||h.x+h.w>h.max){h.vx*=-1;h.x=Math.max(h.min,Math.min(h.max-h.w,h.x));}}
-  if(player.inv<=0&&rectHit({x:player.x+4,y:player.y+4,w:player.w-8,h:player.h-5},{x:h.x,y:h.y,w:h.w,h:h.h})){if(player.shield>0){player.shield=0;player.inv=1.1;showToast('✨ Love Shield blocked an obstacle!');}else{player.inv=1.2;loseLife();return;}}
+  if(player.inv<=0&&!boosted&&rectHit({x:player.x+4,y:player.y+4,w:player.w-8,h:player.h-5},{x:h.x,y:h.y,w:h.w,h:h.h})){if(player.shield>0){player.shield=0;player.inv=1.1;showToast('✨ Love Shield blocked an obstacle!');}else{player.inv=1.2;loseLife();return;}}
  }
  if(player.shield>0)player.shield-=dt;if(player.magnet>0)player.magnet-=dt;
  for(let b of bombs){if(b.got||collected.has(b.id))continue;let dx=(player.x+15)-b.x,dy=(player.y+20)-b.y,dist=Math.hypot(dx,dy);if(player.magnet>0&&dist<180){b.x+=dx*dt*2.3;b.y+=dy*dt*2.3}
   if(dist<29){b.got=true;collected.add(b.id);score+=b.special?50:20;let msg=messages[(level+(parseInt(b.id.split('-')[1])||0))%messages.length];journal.push(msg);showToast((b.special?'✨ SPECIAL LOVE BOMB! ':'💗 ')+msg);jingle();for(let i=0;i<18;i++)particles.push({x:b.x,y:b.y,vx:(rand(i+worldTime*10)-.5)*220,vy:(rand(i+30+worldTime*10)-.8)*220,t:.8});persist();updateHud()}}
- for(let p of powerups){if(!p.got&&Math.hypot(player.x+15-p.x,player.y+20-p.y)<30){p.got=true;if(p.type==='shield')player.shield=10;else player.magnet=10;score+=30;showToast(p.type==='shield'?'💞 Love Shield! 10 seconds of protection':'💗 Heart Magnet! Hearts come closer');beep(880,.2,'triangle');updateHud()}}
+ for(let p of powerups){if(!p.got&&Math.hypot(player.x+15-p.x,player.y+20-p.y)<30){p.got=true;if(p.type==='shield')player.shield=10;else if(p.type==='magnet')player.magnet=10;else player.boost=9;score+=30;showToast(p.type==='shield'?'💞 Love Shield! 10 seconds of protection':p.type==='magnet'?'💗 Heart Magnet! Hearts come closer':'🍄 SUPER BOOST! Faster running, mega jumps & obstacle power for 9 seconds!');beep(880,.2,'triangle');updateHud()}}
  for(let c of checkpoints){if(!c.hit&&player.x>c.x){c.hit=true;checkpointX=c.x;showToast('💗 Heart checkpoint saved!');persist();beep(740,.2,'sine')}}
  particles=particles.filter(p=>p.t>0);particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=300*dt;p.t-=dt});
  camera=Math.max(0,Math.min(exitX-W*.62,player.x-W*.35));
@@ -177,10 +179,10 @@ function draw(){
  let ex=exitX-camera;px(ex,380,78,130,'#9a6a9b');px(ex+8,390,62,120,'#f9c4dc');px(ex+28,445,22,65,'#b16a91');drawHeart(ex+39,380,20,'#fff0a8');
  // bombs
  for(let b of bombs){if(b.got||collected.has(b.id))continue;let x=b.x-camera,y=b.y+Math.sin(worldTime*3+b.phase)*6;if(x<-30||x>W+30)continue;drawHeart(x,y, b.special?19:14,b.special?'#ffe27a':'#ff67aa');px(x-3,y-16,6,3,'#fff');if(b.special){ctx.strokeStyle='#fff5c4';ctx.strokeRect(x-17,y-20,34,34)}}
- for(let p of powerups){if(p.got)continue;let x=p.x-camera;drawHeart(x,p.y,19,p.type==='shield'?'#ff8ec4':'#c08bff');ctx.fillStyle='#fff';ctx.font='bold 13px monospace';ctx.fillText(p.type==='shield'?'S':'M',x-4,p.y+5)}
+ for(let p of powerups){if(p.got)continue;let x=p.x-camera;if(p.type==='super'){px(x-13,p.y-9,26,25,'#fff0d5');px(x-10,p.y-15,20,8,'#e94f70');px(x-7,p.y-20,14,6,'#e94f70');px(x-8,p.y+1,6,6,'#fff');px(x+3,p.y+1,6,6,'#fff');px(x-7,p.y+12,14,4,'#9b5b45');ctx.fillStyle='#fff';ctx.font='bold 10px monospace';ctx.fillText('BOOST',x-18,p.y+31)}else{drawHeart(x,p.y,19,p.type==='shield'?'#ff8ec4':'#c08bff');ctx.fillStyle='#fff';ctx.font='bold 13px monospace';ctx.fillText(p.type==='shield'?'S':'M',x-4,p.y+5)}}
  // character: pixel adventurer
  let x=player.x-camera,y=player.y,blink=player.inv>0&&Math.floor(worldTime*12)%2===0;
- if(!blink){if(player.shield>0){ctx.strokeStyle='#fff2a8';ctx.lineWidth=4;ctx.beginPath();ctx.arc(x+15,y+21,30,0,Math.PI*2);ctx.stroke()}
+ if(!blink){if(player.boost>0){ctx.strokeStyle='#ffe45e';ctx.lineWidth=5;ctx.beginPath();ctx.arc(x+15,y+21,34+Math.sin(worldTime*18)*3,0,Math.PI*2);ctx.stroke();}if(player.shield>0){ctx.strokeStyle='#fff2a8';ctx.lineWidth=4;ctx.beginPath();ctx.arc(x+15,y+21,30,0,Math.PI*2);ctx.stroke()}
   // backpack
   px(x+3,y+17,7,16,'#c86c9a');px(x+5,y+20,4,5,'#ffe1ef');
   // legs
