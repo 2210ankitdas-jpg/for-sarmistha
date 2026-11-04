@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Ankit's Adventure for Sarmistha ❤️</title>
+<style>
+:root{--pink:#ff78b7;--deep:#7b3e83;--cream:#fff8ee;--ink:#34294b}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#211c3b;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+body{display:grid;place-items:center}.shell{width:min(1100px,100vw);height:min(760px,100dvh);position:relative;background:#a7e8e6;overflow:hidden;border:5px solid #fff0f7;border-radius:18px;box-shadow:0 20px 70px #09071b99}
+canvas{display:block;width:100%;height:100%;image-rendering:pixelated;touch-action:none}
+.hud{position:absolute;inset:12px 14px auto;display:flex;justify-content:space-between;gap:8px;align-items:flex-start;pointer-events:none;z-index:3}
+.pill{background:#fff8f0eF;border:2px solid #fff;box-shadow:0 3px 0 #b76e9a55;border-radius:14px;padding:7px 11px;font-weight:800;font-size:clamp(11px,1.6vw,15px);color:#663d70}
+.hudright{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.hud button,.menu button,.touch button{pointer-events:auto;border:0;border-radius:12px;background:#fff5fa;color:#763e76;font-weight:900;padding:9px 12px;box-shadow:0 4px 0 #d78bb2;cursor:pointer}
+.hud button:active,.menu button:active,.touch button:active{transform:translateY(3px);box-shadow:0 1px 0 #d78bb2}
+.overlay{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(#33214a88,#33214acc);z-index:5;padding:18px}
+.menu{width:min(590px,95%);max-height:94%;overflow:auto;text-align:center;background:#fff8ef;border:5px solid #fff;border-radius:24px;padding:clamp(16px,4vw,30px);box-shadow:0 12px 0 #d78bb2}
+h1{font-size:clamp(25px,5vw,44px);line-height:1.05;margin:5px 0 8px;color:#c64f91;text-shadow:2px 3px #ffe0ef}
+h2{color:#a74c89;margin:5px 0 12px}.sub{font-weight:700;color:#775c7e;line-height:1.45}
+.menu button{font-size:16px;margin:6px;background:#ff8abd;color:#fff;padding:12px 20px;box-shadow:0 5px 0 #c65f98}
+.small{font-size:12px;color:#907b91}.journal{margin:12px auto;padding:10px;background:#fff0f6;border-radius:14px;text-align:left;max-height:150px;overflow:auto;font-size:13px}
+.touch{position:absolute;inset:auto 14px 14px;display:none;justify-content:space-between;pointer-events:none;z-index:4}
+.touch .cluster{display:flex;gap:10px}.touch button{width:58px;height:54px;font-size:21px;opacity:.88;touch-action:none}
+.toast{position:absolute;left:50%;top:22%;transform:translate(-50%,-10px);background:#fff8ef;border:3px solid #fff;border-radius:16px;padding:12px 18px;font-weight:900;color:#b74687;text-align:center;box-shadow:0 5px 0 #d78bb2;opacity:0;transition:.25s;z-index:4;pointer-events:none;max-width:85%}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(pointer:coarse),(max-width:700px){.touch{display:flex}.shell{border-width:3px;border-radius:0;width:100vw;height:100dvh}.hud{inset:7px 7px auto}.pill{padding:6px 8px}.hud button{padding:7px 9px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<canvas id="game" width="960" height="600" aria-label="Ankit's Adventure platform game"></canvas>
+<div class="hud" id="hud" hidden>
+ <div class="pill" id="worldLabel">🌷 Love Meadow</div>
+ <div class="hudright">
+  <div class="pill" id="stats">❤️ 0/0 · 💗 0</div>
+  <button id="journalBtn">Love Journal</button><button id="soundBtn">♪ Sound: On</button><button id="pauseBtn">Ⅱ</button>
+ </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="touch" id="touch">
+ <div class="cluster"><button data-key="left">◀</button><button data-key="right">▶</button></div>
+ <div class="cluster"><button data-key="jump">⬆</button><button data-key="run">»</button>
+ </div>
+</div>
+<div class="overlay" id="overlay">
+ <div class="menu" id="menuContent">
+  <div style="font-size:48px">🌸 💗 🌈</div>
+  <h1>ANKIT'S ADVENTURE</h1><h2>for Sarmistha ❤️</h2>
+  <p class="sub">A tiny pixel-world journey, made with a whole lot of love.<br>Run, jump, find the Love Bombs, and make it to Sarmistha.</p>
+  <p><b>⌨️</b> Move: ← → or A / D &nbsp; <b>Jump:</b> Space / ↑ / W<br><b>Run:</b> Shift &nbsp; <b>Pause:</b> P</p>
+  <button id="startBtn">Start our adventure ✨</button>
+  <button id="continueBtn" style="background:#a78ad7;box-shadow:0 5px 0 #7862a9">Continue saved game</button>
+  <p class="small">8 worlds · 40-ish minutes of exploring · progress saves on this device</p>
+ </div>
+</div>
+</div>
+<script>
+(()=>{
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const W=960,H=600,overlay=document.getElementById('overlay'),menu=document.getElementById('menuContent'),hud=document.getElementById('hud');
+const toastEl=document.getElementById('toast');
+const worldNames=['Love Meadow','Cherry Blossom Valley','Candy Kingdom','Cloud Nine','Starlight Night','Bubble Ocean','Rainbow Mountain',"Sarmistha's Dream Castle"];
+const palettes=[
+ ['#9be4b0','#5cbf91','#fff1b8','#ff8fba'],['#ffd0e3','#e994bb','#fff2f8','#c86fa5'],
+ ['#b8eff0','#f5a8ca','#fff0a8','#e58aaf'],['#a8d8ff','#7ca8e8','#fff8ff','#c3b7ff'],
+ ['#383b75','#252653','#d9d8ff','#a88bff'],['#8de5e6','#48b8cb','#e8ffff','#ffb9d8'],
+ ['#ffcf9c','#e98da9','#fff3a5','#a58ee8'],['#ffc1d9','#bb87ce','#fff0ce','#ffdf8e']
+];
+const messages=[
+"You're my favourite person, Sarmistha. 💗","Every adventure is better with you. 🌸","Your smile is my favourite thing. ☀️",
+"I'd choose you in every universe. ✨","You make my world brighter. 🌈","Even oceans feel small when we're together. 🫧",
+"You're my forever favourite player. 💞","Lots of love, from Ankit. ❤️"
+];
+const levelLengths=[2600,2800,3000,3200,3400,3500,3700,3900];
+const keys={left:false,right:false,jump:false,run:false};
+let state='title',level=0,camera=0,last=0,toastTimer=0,sound=true,muted=false;
+let player,platforms=[],bombs=[],powerups=[],checkpoints=[],decor=[],exitX=0,worldTime=0;
+let collected=new Set(),journal=[],lives=3,score=0,checkpointX=80,gameTime=0,particles=[],messageIndex=0;
+let audioCtx=null;
+const saveKey='ankit_sarmistha_adventure_v1';
+function loadSave(){try{return JSON.parse(localStorage.getItem(saveKey)||'{}')}catch(e){return {}}}
+let saved=loadSave();
+function persist(){try{localStorage.setItem(saveKey,JSON.stringify({level,collected:[...collected],journal,score,lives,gameTime,checkpointX}))}catch(e){}}
+function beep(freq=600,dur=.09,type='sine',vol=.045){if(!sound)return;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(freq,audioCtx.currentTime);g.gain.setValueAtTime(vol,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur)}catch(e){}}
+function jingle(){[523,659,784,1046].forEach((n,i)=>setTimeout(()=>beep(n,.16,'triangle',.035),i*90))}
+function showToast(t){toastEl.textContent=t;toastEl.classList.add('show');toastTimer=2.4}
+function rand(seed){let x=Math.sin(seed*127.1+level*311.7)*43758.5453;return x-Math.floor(x)}
+function makeLevel(n){
+ level=n;worldTime=0;camera=0;particles=[];platforms=[];bombs=[];powerups=[];checkpoints=[];decor=[];
+ let len=levelLengths[n],gapBase=[0,0,8,18,25,20,35,30][n];
+ // Ground segments and platforms
+ let x=0;platforms.push({x:0,y:510,w:len,h:90,ground:true});
+ for(let i=0;i<Math.floor(len/310);i++){
+  let bx=250+i*310+rand(i+2)*65, gap=gapBase+rand(i+5)*18;
+  if(n>=2 && i%3===1){platforms.push({x:bx,y:425-rand(i+9)*50,w:100+rand(i)*45,h:18});}
+  if(n>=3 && i%4===2){platforms.push({x:bx+105,y:365,w:105,h:18});}
+  if(n>=5 && i%4===0){platforms.push({x:bx+50,y:455,w:75,h:16});}
+  if(i%2===0){platforms.push({x:bx+35,y:440-rand(i+1)*48,w:95,h:18});}
+ }
+ // A few deliberate stepping stones over shallow-looking gaps (ground remains safe)
+ for(let i=0;i<Math.floor(len/440);i++){let px=390+i*440;platforms.push({x:px,y:430-(i%3)*22,w:110,h:17});}
+ exitX=len-135;
+ for(let i=0;i<18;i++){
+  let bx=180+i*(len-330)/18+rand(i+40)*55;
+  let by=380-rand(i+80)*125;
+  bombs.push({x:bx,y:by,r:13,id:`${n}-${i}`,special:i===4||i===12,got:collected.has(`${n}-${i}`),phase:rand(i)*6});
+ }
+ powerups.push({x:len*.32,y:350,type:'shield',got:false},{x:len*.67,y:340,type:'magnet',got:false});
+ checkpoints=[{x:len*.36,hit:false},{x:len*.70,hit:false}];
+ for(let i=0;i<70;i++){decor.push({x:rand(i+100)*len,y:rand(i+200)*420,type:Math.floor(rand(i+300)*4),s:8+rand(i+400)*15})}
+ player={x:n===level?Math.max(70,checkpointX):70,y:420,vx:0,vy:0,w:30,h:42,onGround:false,face:1,inv:0,shield:0,magnet:0,anim:0};
+ checkpointX=Math.max(70,Math.min(checkpointX,len*.72));
+ updateHud();
+}
+function updateHud(){document.getElementById('worldLabel').textContent=['🌷','🌸','🍬','☁️','🌙','🫧','🌈','🏰'][level]+' '+worldNames[level];let total=bombs.filter(b=>b.got||collected.has(b.id)).length;document.getElementById('stats').textContent=`❤️ ${total}/18 · 💗 ${score} · ✦ ${lives}`;}
+function startNew(){level=0;collected=new Set();journal=[];score=0;lives=3;gameTime=0;checkpointX=70;makeLevel(0);state='play';overlay.style.display='none';hud.hidden=false;persist();jingle()}
+function continueGame(){let s=loadSave();level=Math.max(0,Math.min(7,s.level||0));collected=new Set(s.collected||[]);journal=s.journal||[];score=s.score||0;lives=s.lives||3;gameTime=s.gameTime||0;checkpointX=s.checkpointX||70;makeLevel(level);state='play';overlay.style.display='none';hud.hidden=false;jingle()}
+function showMenu(title,body,buttons){hud.hidden=true;overlay.style.display='grid';menu.innerHTML=`<div style="font-size:43px">💗 ✨ 💗</div><h1>${title}</h1><p class="sub">${body}</p>${buttons}<p class="small">Ankit made this little world just for Sarmistha ❤️</p>`}
+function pause(){if(state==='play'){state='pause';showMenu('Taking a little break?','Your adventure is safely paused. The hearts will wait for you. 💕',`<button id="resume">Keep going</button><button id="home" style="background:#a78ad7;box-shadow:0 5px 0 #7862a9">Main menu</button>`);document.getElementById('resume').onclick=()=>{state='play';overlay.style.display='none';hud.hidden=false;last=performance.now()};document.getElementById('home').onclick=titleScreen}}
+function titleScreen(){state='title';showMenu("ANKIT'S ADVENTURE",`A tiny pixel-world journey, made with a whole lot of love.<br>Run, jump, find the Love Bombs, and make it to Sarmistha.<br><br><b>Move:</b> ← → / A D &nbsp; <b>Jump:</b> Space / ↑ / W &nbsp; <b>Run:</b> Shift`, `<button id="newGame">Start our adventure ✨</button><button id="continue" style="background:#a78ad7;box-shadow:0 5px 0 #7862a9">Continue saved game</button>`);document.getElementById('newGame').onclick=startNew;document.getElementById('continue').onclick=continueGame}
+function showJournal(){let list=journal.length?journal.map(m=>`<p>💗 ${m}</p>`).join(''):'<p>Your journal is waiting for its first little love note. Collect a Love Bomb! 💌</p>';showMenu('The Love Journal',`Every little message you find stays right here.<div class="journal">${list}</div>`,`<button id="back">Back to adventure</button>`);document.getElementById('back').onclick=()=>{state='play';overlay.style.display='none';hud.hidden=false;last=performance.now()}}
+document.getElementById('startBtn').onclick=startNew;document.getElementById('continueBtn').onclick=continueGame;
+document.getElementById('pauseBtn').onclick=pause;document.getElementById('journalBtn').onclick=()=>{if(state==='play'){state='journal';showJournal()}};document.getElementById('soundBtn').onclick=()=>{sound=!sound;document.getElementById('soundBtn').textContent='♪ Sound: '+(sound?'On':'Off');if(sound)beep(700)};
+window.addEventListener('keydown',e=>{let k=e.key.toLowerCase();if(['arrowleft','arrowright','arrowup',' ','arrowdown'].includes(k))e.preventDefault();if(k==='arrowleft'||k==='a')keys.left=true;if(k==='arrowright'||k==='d')keys.right=true;if(k===' '||k==='arrowup'||k==='w')keys.jump=true;if(k==='shift')keys.run=true;if(k==='p'||k==='escape')pause();});
+window.addEventListener('keyup',e=>{let k=e.key.toLowerCase();if(k==='arrowleft'||k==='a')keys.left=false;if(k==='arrowright'||k==='d')keys.right=false;if(k===' '||k==='arrowup'||k==='w')keys.jump=false;if(k==='shift')keys.run=false});
+document.querySelectorAll('.touch button').forEach(b=>{let k=b.dataset.key;b.addEventListener('pointerdown',e=>{e.preventDefault();keys[k]=true;b.setPointerCapture(e.pointerId)});['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,()=>keys[k]=false))});
+function rectHit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function update(dt){
+ if(state!=='play')return;worldTime+=dt;gameTime+=dt;player.anim+=dt*10;if(player.inv>0)player.inv-=dt;
+ let accel=keys.run?1050:800,max=keys.run?330:245;
+ if(keys.left){player.vx-=accel*dt;player.face=-1}else if(keys.right){player.vx+=accel*dt;player.face=1}else player.vx*=Math.pow(.001,dt);
+ player.vx=Math.max(-max,Math.min(max,player.vx));
+ if(keys.jump&&player.onGround){player.vy=-610;player.onGround=false;beep(420,.08,'square',.025)}
+ player.vy+=1500*dt;player.vy=Math.min(player.vy,850);
+ let oldY=player.y;player.x+=player.vx*dt;player.x=Math.max(0,Math.min(exitX+80,player.x));player.y+=player.vy*dt;player.onGround=false;
+ for(let p of platforms){if(player.x+player.w>p.x&&player.x<p.x+p.w&&oldY+player.h<=p.y+8&&player.y+player.h>=p.y&&player.vy>=0){player.y=p.y-player.h;player.vy=0;player.onGround=true}}
+ if(player.y>H+120){loseLife();return}
+ if(player.shield>0)player.shield-=dt;if(player.magnet>0)player.magnet-=dt;
+ for(let b of bombs){if(b.got||collected.has(b.id))continue;let dx=(player.x+15)-b.x,dy=(player.y+20)-b.y,dist=Math.hypot(dx,dy);if(player.magnet>0&&dist<180){b.x+=dx*dt*2.3;b.y+=dy*dt*2.3}
+  if(dist<29){b.got=true;collected.add(b.id);score+=b.special?50:20;let msg=messages[(level+(parseInt(b.id.split('-')[1])||0))%messages.length];journal.push(msg);showToast((b.special?'✨ SPECIAL LOVE BOMB! ':'💗 ')+msg);jingle();for(let i=0;i<18;i++)particles.push({x:b.x,y:b.y,vx:(rand(i+worldTime*10)-.5)*220,vy:(rand(i+30+worldTime*10)-.8)*220,t:.8});persist();updateHud()}}
+ for(let p of powerups){if(!p.got&&Math.hypot(player.x+15-p.x,player.y+20-p.y)<30){p.got=true;if(p.type==='shield')player.shield=10;else player.magnet=10;score+=30;showToast(p.type==='shield'?'💞 Love Shield! 10 seconds of protection':'💗 Heart Magnet! Hearts come closer');beep(880,.2,'triangle');updateHud()}}
+ for(let c of checkpoints){if(!c.hit&&player.x>c.x){c.hit=true;checkpointX=c.x;showToast('💗 Heart checkpoint saved!');persist();beep(740,.2,'sine')}}
+ particles=particles.filter(p=>p.t>0);particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=300*dt;p.t-=dt});
+ camera=Math.max(0,Math.min(exitX-W*.62,player.x-W*.35));
+ if(player.x>exitX){if(level<7){level++;checkpointX=70;makeLevel(level);showToast('🌟 World '+(level+1)+' unlocked!');persist();jingle()}else finishGame()}
+ if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)toastEl.classList.remove('show')}
+ updateHud();
+}
+function loseLife(){if(player.shield>0){player.shield=0;player.y=300;player.vy=-180;return}lives--;beep(180,.25,'sawtooth');if(lives<=0){lives=3;player.x=checkpointX;player.y=350;showToast('A little reset! You have three more hearts.')}else{player.x=checkpointX;player.y=350;player.vx=0;player.vy=0;showToast('Oopsie! Back to your heart checkpoint 💗')}persist();updateHud()}
+function finishGame(){state='finish';persist();jingle();showMenu('YOU FOUND YOUR WAY TO HER! ❤️',`<div style="font-size:52px">👦🏻 💗 👧🏻</div><h2>ANKIT + SARMISHTA</h2><p>Across eight worlds, countless jumps and every little love note, the best part of the adventure was reaching you.</p><p><b>The greatest treasure was never at the end of the journey.<br>It was you all along. ❤️</b></p><h2>Lots of love, from Ankit</h2>`,`<button id="again">Play our adventure again</button><button id="journalEnd" style="background:#a78ad7;box-shadow:0 5px 0 #7862a9">Read our Love Journal</button>`);document.getElementById('again').onclick=startNew;document.getElementById('journalEnd').onclick=()=>{state='journal';showJournal()}}
+function px(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+function drawHeart(x,y,s,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x,y+s*.35);ctx.bezierCurveTo(x-s,y-s*.35,x-s*.8,y-s,x,y-s*.35);ctx.bezierCurveTo(x+s*.8,y-s,x+s,y-s*.35,x,y+s*.35);ctx.fill()}
+function cloud(x,y,s,c){ctx.fillStyle=c;ctx.fillRect(x,y,s*2,s*.45);ctx.fillRect(x+s*.25,y-s*.35,s*.65,s*.8);ctx.fillRect(x+s*.9,y-s*.18,s*.65,s*.65)}
+function draw(){
+ let pal=palettes[level],bg=pal[0];ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ // distant scenery
+ for(let i=0;i<9;i++){let x=((i*180-camera*.22)%(W+220)+W+220)%(W+220)-100;cloud(x,95+(i%3)*58,38,pal[2]+'cc')}
+ if(level===4){for(let i=0;i<65;i++){let x=(i*173-camera*.15)%W,y=(i*71)%280;px(x,y,3,3,'#fff7d6')}}
+ // layered hills
+ for(let i=0;i<8;i++){let x=i*170-(camera*.42%170);ctx.fillStyle=pal[1];ctx.beginPath();ctx.ellipse(x+80,505,125,105,0,0,Math.PI*2);ctx.fill()}
+ // decorations
+ for(let d of decor){let x=d.x-camera;if(x<-30||x>W+30)continue;if(level===1){px(x,470,4,30,'#9c6c7b');drawHeart(x,460,d.s*.6,'#ff9fc6')}else if(level===5){drawHeart(x,250+d.y*.4,d.s*.5,'#d9ffff')}else if(level===7){px(x,480,8,25,'#8b5d84');drawHeart(x,470,d.s*.5,'#ffafd0')}else{px(x,492,5,8,['#fff0a8','#ff9bc2','#fff'][d.type%3]);}}
+ // platforms / ground
+ for(let p of platforms){let x=p.x-camera;if(x+p.w<0||x>W)continue;px(x,p.y,p.w,p.h,p.ground?pal[1]:pal[2]);px(x,p.y,p.w,7,p.ground?pal[3]:'#fff');if(!p.ground){for(let q=8;q<p.w-5;q+=18)px(x+q,p.y+9,8,4,'#e9b1d0')}}
+ // checkpoints
+ for(let c of checkpoints){let x=c.x-camera;px(x,440,5,70,'#fff5e9');drawHeart(x+9,438,13,c.hit?'#ffdb75':'#ff79b4')}
+ // exit
+ let ex=exitX-camera;px(ex,380,78,130,'#9a6a9b');px(ex+8,390,62,120,'#f9c4dc');px(ex+28,445,22,65,'#b16a91');drawHeart(ex+39,380,20,'#fff0a8');
+ // bombs
+ for(let b of bombs){if(b.got||collected.has(b.id))continue;let x=b.x-camera,y=b.y+Math.sin(worldTime*3+b.phase)*6;if(x<-30||x>W+30)continue;drawHeart(x,y, b.special?19:14,b.special?'#ffe27a':'#ff67aa');px(x-3,y-16,6,3,'#fff');if(b.special){ctx.strokeStyle='#fff5c4';ctx.strokeRect(x-17,y-20,34,34)}}
+ for(let p of powerups){if(p.got)continue;let x=p.x-camera;drawHeart(x,p.y,19,p.type==='shield'?'#ff8ec4':'#c08bff');ctx.fillStyle='#fff';ctx.font='bold 13px monospace';ctx.fillText(p.type==='shield'?'S':'M',x-4,p.y+5)}
+ // character: pixel adventurer
+ let x=player.x-camera,y=player.y,blink=player.inv>0&&Math.floor(worldTime*12)%2===0;
+ if(!blink){if(player.shield>0){ctx.strokeStyle='#fff2a8';ctx.lineWidth=4;ctx.beginPath();ctx.arc(x+15,y+21,30,0,Math.PI*2);ctx.stroke()}
+  // backpack
+  px(x+3,y+17,7,16,'#c86c9a');px(x+5,y+20,4,5,'#ffe1ef');
+  // legs
+  let step=player.onGround&&Math.abs(player.vx)>20?Math.sin(player.anim)*3:0;px(x+7,y+33,7,9,'#5265a5');px(x+19,y+33,7,9,'#5265a5');px(x+5+step,y+40,10,4,'#70486f');px(x+18-step,y+40,10,4,'#70486f');
+  // body/head
+  px(x+5,y+17,22,18,'#65b6a2');px(x+7,y+1,18,19,'#f6c69d');px(x+5,y-2,22,8,'#70486f');px(x+8,y-7,16,7,'#70486f');px(x+10,y+8,3,3,'#34294b');px(x+20,y+8,3,3,'#34294b');px(x+14,y+14,6,2,'#d76e83');
+  // little heart badge
+  drawHeart(x+16,y+24,5,'#ff6ea9');
+ }
+ // particles
+ for(let p of particles){drawHeart(p.x-camera,p.y,5,'#ff9bc7')}
+ // progress ribbon
+ px(20,H-20,220,6,'#ffffff88');px(20,H-20,220*player.x/exitX,6,'#ff75b4');
+ ctx.fillStyle='#fff';ctx.font='bold 12px monospace';ctx.fillText('ADVENTURE PROGRESS',20,H-27);
+}
+function frame(t){let dt=Math.min(.035,(t-last)/1000||0);last=t;if(state==='play')update(dt);if(state==='play'||state==='pause'||state==='journal')draw();requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+const s=loadSave();if(s&&typeof s.level==='number'&&(s.level>0||(s.collected||[]).length)){document.getElementById('continueBtn').style.display='inline-block'}else document.getElementById('continueBtn').style.display='none';
+makeLevel(0);state='title';
+})();
+</script>
+</body></html>
