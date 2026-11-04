@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#170b1d">
+<title>After Hours — Ankit × Sarmistha</title>
+<style>
+:root{--bg:#120916;--panel:#211329;--panel2:#2b1834;--pink:#ff6b9d;--rose:#ff9dbb;--cream:#fff3f6;--muted:#c9afc6;--gold:#ffd48a}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--cream);font-family:ui-rounded,"Segoe UI",system-ui,sans-serif;background:radial-gradient(ellipse at 12% 8%,#522044 0,transparent 34%),radial-gradient(ellipse at 90% 85%,#342052 0,transparent 38%),var(--bg);display:flex;align-items:center;justify-content:center;padding:22px;overflow-x:hidden}
+body:before{content:"✦  ·  ♥  ·  ✦";position:fixed;top:22px;right:25px;color:#ff9dbb55;letter-spacing:14px;font-size:20px;pointer-events:none}
+.wrap{width:min(720px,100%);margin:auto}.brand{text-align:center;margin-bottom:22px}.eyebrow{color:var(--gold);text-transform:uppercase;letter-spacing:4px;font-size:11px;font-weight:800}.brand h1{font-size:clamp(36px,8vw,62px);line-height:1;margin:10px 0;background:linear-gradient(100deg,#fff1f5,#ff83ac 55%,#ffc5d7);background-clip:text;color:transparent;letter-spacing:-2px}.brand p{color:var(--muted);margin:10px 0 0}.card{background:linear-gradient(145deg,#29172fef,#1b1024f5);border:1px solid #ffffff18;border-radius:26px;padding:clamp(22px,5vw,38px);box-shadow:0 24px 80px #0007;backdrop-filter:blur(12px)}.intro{text-align:center}.heart{font-size:46px;filter:drop-shadow(0 0 18px #ff6b9d66)}h2{font-size:25px;margin:12px 0}.intro p,.sub{color:var(--muted);line-height:1.65}.notice{font-size:12px;color:#e4c9d9;background:#ffffff08;border:1px solid #ffffff12;padding:12px 14px;border-radius:14px;margin:20px 0;text-align:left}.check{display:flex;gap:10px;align-items:flex-start;text-align:left;font-size:13px;color:#f1dce7;margin:18px 0}.check input{accent-color:var(--pink);margin-top:3px}.btn{border:0;border-radius:999px;padding:14px 22px;font-size:14px;font-weight:800;cursor:pointer;transition:.18s transform,.18s filter}.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}.primary{background:linear-gradient(100deg,#ff6b9d,#ff9baf);color:#321326;box-shadow:0 9px 24px #ff6b9d30}.secondary{background:#ffffff12;color:var(--cream);border:1px solid #ffffff20}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}.game{display:none}.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}.pill{border:1px solid #ff8dbb55;background:#ff6b9d18;color:#ffb6ce;padding:8px 12px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:1px}.round{color:var(--muted);font-size:12px}.meter{height:5px;background:#ffffff12;border-radius:9px;overflow:hidden;margin:0 0 26px}.meter span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--gold));transition:width .3s}.level{font-size:11px;color:var(--gold);font-weight:900;letter-spacing:2px;text-transform:uppercase}.question{font-size:clamp(23px,5vw,34px);line-height:1.25;letter-spacing:-.7px;margin:15px 0 12px}.hint{color:var(--muted);font-size:13px;margin-bottom:22px}.answer{width:100%;min-height:110px;resize:vertical;border:1px solid #ffffff22;background:#100a16;color:white;border-radius:16px;padding:15px;font:inherit;outline:none}.answer:focus{border-color:#ff82ad}.answer::placeholder{color:#907c91}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.actions .primary{flex:1}.reaction{display:none;margin-top:18px;padding:16px;border-radius:16px;background:#ff8dbb12;border:1px solid #ff8dbb35;color:#ffe3ec;line-height:1.55}.reaction strong{color:#ff9dbb}.footer{text-align:center;color:#987f98;font-size:11px;margin:17px 0 0}.smalllinks{display:flex;justify-content:center;gap:16px;margin-top:14px}.smalllinks button{border:0;background:none;color:#b79ab4;text-decoration:underline;cursor:pointer;font:inherit;font-size:12px}.toast{color:#ffb6ce;font-size:12px;margin-top:10px;min-height:18px}
+@media(max-width:480px){body{padding:14px}.card{border-radius:21px}.topline{align-items:flex-start}.actions{display:grid;grid-template-columns:1fr 1fr}.actions .primary{grid-column:1/-1}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="brand"><div class="eyebrow">A little romance · A little trouble</div><h1>AFTER HOURS</h1><p>Ankit <span style="color:#ff83ac">♥</span> Sarmistha · The no-secrets game</p></header>
+<section class="card intro" id="intro">
+<div class="heart">💋</div><div class="eyebrow">Just the two of you</div><h2>Ready to blush a little?</h2>
+<p>Take turns, tell the truth, and discover what your favourite person has been keeping to themselves. The questions start sweet and get cheekier as you go.</p>
+<div class="notice">♡ One question at a time · Pass the phone after each answer · No judgement, no pressure. Either of you can skip, pause, or stop whenever you like.</div>
+<label class="check"><input type="checkbox" id="adult"><span>We both confirm that we are 18 or older and want to play.</span></label>
+<button class="btn primary" id="start" disabled>LET THE BLUSHING BEGIN →</button>
+<div class="footer">Made for Ankit &amp; Sarmistha · Keep it between you two 🔒</div>
+</section>
+<section class="card game" id="game">
+<div class="topline"><span class="pill" id="player">ANKIT'S TURN</span><span class="round" id="round">ROUND 01</span></div>
+<div class="meter"><span id="progress"></span></div>
+<div class="level" id="level">LEVEL 1 · SWEET SPARK</div>
+<div class="question" id="question"></div><div class="hint" id="hint">Say it out loud or type it in — honesty looks good on you.</div>
+<textarea class="answer" id="answer" placeholder="Your answer goes here…"></textarea>
+<div class="actions"><button class="btn primary" id="submit">LOCK IN MY ANSWER ✨</button><button class="btn secondary" id="skip">SKIP THIS ONE ↗</button></div>
+<div class="reaction" id="reaction"></div>
+<div class="actions" id="nextrow" style="display:none"><button class="btn primary" id="next">PASS TO THE OTHER PLAYER →</button></div>
+<div class="smalllinks"><button id="pause">Pause game</button><button id="stop">End game</button></div><div class="toast" id="toast"></div>
+</section>
+<footer class="footer">18+ only · Respect each other's boundaries · Love always wins</footer>
+</main>
+<script>
+const bank=[
+["Sweet Spark","What's one tiny thing your partner does that gives you butterflies every single time?"],
+["Sweet Spark","What was the exact moment you realised this person was becoming special to you?"],
+["Sweet Spark","Describe your perfect slow, romantic evening together in three details."],
+["Sweet Spark","What's a compliment you secretly wish your partner would give you more often?"],
+["Sweet Spark","Which of your shared memories would you happily relive tonight?"],
+["Sweet Spark","What's one song that instantly makes you think of your partner, and why?"],
+["Flirty Zone","What's the most attractive look or outfit your partner has ever worn?"],
+["Flirty Zone","Where is your favourite place to steal a kiss?"],
+["Flirty Zone","What's one little thing your partner does that you find ridiculously irresistible?"],
+["Flirty Zone","Would you rather have a surprise date night or a surprise make-out session? Tell us why."],
+["Flirty Zone","What's your favourite kind of kiss: soft and slow, playful, or can't-stop-smiling?"],
+["Flirty Zone","If you had 30 seconds to make your partner blush, what would you say?"],
+["Flirty Zone","What's a romantic moment you wish you could recreate, but make it even better?"],
+["Flirty Zone","What's one harmless thing your partner does that instantly distracts you?"],
+["After Dark","What's a sensual, non-rushed way you'd love to be surprised by your partner?"],
+["After Dark","What's your favourite kind of affectionate touch: hand-holding, hugs, forehead kisses, or cuddles?"],
+["After Dark","What's a private romantic fantasy you'd feel comfortable sharing with your partner?"],
+["After Dark","What makes you feel most wanted and desired in a relationship?"],
+["After Dark","Would you rather plan a candlelit night in or sneak away for a spontaneous weekend together?"],
+["After Dark","What's one new romantic experience you'd love for the two of you to try, with mutual enthusiasm?"],
+["After Dark","What's something your partner does that makes you feel safe enough to let your guard down?"],
+["After Dark","What's your favourite memory of being close to your partner, emotionally or physically?"],
+["Heart to Heart","What's one thing you have been nervous to tell your partner, but want them to understand?"],
+["Heart to Heart","When do you feel most loved by your partner?"],
+["Heart to Heart","What's one boundary or preference that helps you feel comfortable and cared for?"],
+["Heart to Heart","What's a promise you want the two of you to make for the next chapter of your relationship?"],
+["Heart to Heart","If you could whisper one completely honest sentence to your partner, what would it be?"],
+["Wildcard","Plan a 10-second romantic gesture your partner would genuinely love. What is it?"],
+["Wildcard","Choose: a long hug, a slow dance in the kitchen, or a kiss in the rain. Which one are you claiming?"],
+["Wildcard","What's one question you've been hoping your partner would ask you?"]
+];
+const reactions=["Ohooo, somebody is getting dangerously honest. 👀","That answer deserves a kiss… and maybe a follow-up question. 😏","Noted by the romance department. We see you. 💌","Well, well. The plot thickens. 🤭","Somebody's blushing and we're not naming names. 🔥","That was smooth. Suspiciously smooth. 😌","Aww. Okay, that one was actually adorable. ❤️"];
+let player=0,round=1,current=null,used=new Set(),paused=false;
+const $=id=>document.getElementById(id);
+$('adult').addEventListener('change',e=>$('start').disabled=!e.target.checked);
+$('start').onclick=()=>{if(!$('adult').checked)return;$('intro').style.display='none';$('game').style.display='block';showQuestion()};
+function showQuestion(){paused=false;$('player').textContent=player===0?"ANKIT'S TURN":"SARMISTHA'S TURN";$('round').textContent='ROUND '+String(round).padStart(2,'0');$('progress').style.width=(Math.min(100,((round-1)%10+1)*10))+'%';if(used.size===bank.length)used.clear();let candidates=bank.map((q,i)=>i).filter(i=>!used.has(i));let idx=candidates[Math.floor(Math.random()*candidates.length)];used.add(idx);current=bank[idx];$('level').textContent='LEVEL '+(Math.floor((round-1)/6)+1)+' · '+current[0].toUpperCase();$('question').textContent=current[1];$('answer').value='';$('answer').disabled=false;$('submit').style.display='';$('skip').style.display='';$('reaction').style.display='none';$('nextrow').style.display='none';$('hint').textContent='Say it out loud or type it in — honesty looks good on you.';$('toast').textContent='';}
+function advance(){player=1-player;round++;showQuestion()}
+function reveal(skipped){$('answer').disabled=true;$('submit').style.display='none';$('skip').style.display='none';$('reaction').style.display='block';const name=player===0?'Ankit':'Sarmistha';let response=skipped?name+' is keeping this one mysterious… intriguing choice. 😈':(name+', '+reactions[Math.floor(Math.random()*reactions.length)]);$('reaction').innerHTML='<strong>'+response+'</strong>'+(skipped?'':'<div style="font-size:12px;color:#c9afc6;margin-top:7px">Answer shared. Your turn is complete.</div>');$('nextrow').style.display='flex';}
+$('submit').onclick=()=>{if(!$('answer').value.trim()){$('toast').textContent='Give us at least a little something… or choose skip 😉';return}reveal(false)};
+$('skip').onclick=()=>reveal(true);$('next').onclick=advance;
+$('pause').onclick=()=>{paused=!paused;$('toast').textContent=paused?'Game paused. Take your time. ❤️':'Back in the game. 😏';$('pause').textContent=paused?'Resume game':'Pause game';$('answer').disabled=paused;$('submit').disabled=paused;$('skip').disabled=paused};
+$('stop').onclick=()=>{if(confirm('End your game and return to the beginning?')){player=0;round=1;used.clear();$('game').style.display='none';$('intro').style.display='block';$('adult').checked=false;$('start').disabled=true;$('pause').textContent='Pause game'}};
+</script></body></html>
