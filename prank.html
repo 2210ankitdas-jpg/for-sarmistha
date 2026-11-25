@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANKIT × SARMISTHA // SYSTEM ALERT</title>
+<style>
+:root{--green:#39ff88;--pink:#ff75c8;--bg:#020504}*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--green);font-family:Consolas,Monaco,"Courier New",monospace;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:5;background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0px,rgba(0,0,0,.22) 1px,transparent 2px,transparent 4px);opacity:.55}
+canvas{position:fixed;inset:0;opacity:.19;pointer-events:none}
+.wrap{position:relative;z-index:2;width:min(960px,92vw);margin:5vh auto;padding:clamp(18px,4vw,38px);border:1px solid #1b9d58;background:rgba(0,12,6,.88);box-shadow:0 0 35px #00ff6540,inset 0 0 28px #00ff6510}
+.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid #176a3e;padding-bottom:14px;color:#8cffb9;font-size:12px;letter-spacing:2px}
+.dot{display:inline-block;width:8px;height:8px;background:#39ff88;border-radius:50%;margin-right:8px;box-shadow:0 0 10px #39ff88;animation:pulse 1s infinite}
+h1{font-size:clamp(25px,5vw,48px);letter-spacing:2px;margin:28px 0 8px;text-shadow:0 0 12px #39ff88;animation:flicker 4s infinite}
+.sub{color:#9ab8a4;font-size:13px;letter-spacing:1px;margin-bottom:24px}
+.alert{border:1px solid #c63d75;color:#ff8fc5;padding:13px 16px;margin:20px 0;background:#3b08201c;box-shadow:0 0 18px #ff4e9b20}
+.terminal{height:360px;overflow:auto;border:1px solid #145c37;background:#010402;padding:18px;box-shadow:inset 0 0 22px #00ff6510;position:relative}
+.terminal:before{content:"●  ●  ●     LOVE.exe — secure terminal";display:block;color:#5b9d76;font-size:11px;border-bottom:1px solid #17452d;padding-bottom:12px;margin-bottom:12px}
+#log{font-size:clamp(11px,1.5vw,13px);line-height:1.75;white-space:pre-wrap;color:#58ff9b}.line{display:block;animation:appear .18s ease-out}
+.pink{color:var(--pink)}.muted{color:#6eaa83}.cursor{display:inline-block;width:8px;height:15px;background:var(--green);vertical-align:middle;animation:blink .7s steps(2) infinite}
+.progressbox{margin:22px 0 8px;color:#8cffb9;font-size:12px}.track{height:8px;border:1px solid #1b8d51;padding:1px;margin-top:9px}
+#bar{height:100%;width:0;background:linear-gradient(90deg,#0b8d43,#39ff88);box-shadow:0 0 12px #39ff88;transition:width .35s}#percent{float:right}
+.reveal{display:none;text-align:center;padding:25px 10px 8px;animation:pop .8s ease both}.reveal h2{font-size:clamp(25px,5vw,42px);color:#ff8bc9;text-shadow:0 0 18px #ff4e9b;margin:10px 0}
+.reveal p{color:#d4ffe2;line-height:1.8}button{margin-top:14px;padding:12px 20px;background:transparent;color:var(--green);border:1px solid var(--green);font:inherit;letter-spacing:1px;cursor:pointer;box-shadow:0 0 15px #39ff8833}
+button:hover{background:#39ff881c;box-shadow:0 0 24px #39ff8870}.footer{margin-top:24px;border-top:1px solid #17452d;padding-top:13px;color:#54876a;font-size:10px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+@keyframes pulse{50%{opacity:.25;box-shadow:none}}@keyframes blink{50%{opacity:0}}@keyframes appear{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}@keyframes flicker{0%,96%,100%{opacity:1}97%{opacity:.55}98%{opacity:1}}@keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@media(max-width:600px){.terminal{height:330px;padding:12px}.top{font-size:10px}.wrap{margin:2vh auto}}
+</style></head>
+<body><canvas id="matrix"></canvas><main class="wrap">
+<div class="top"><span><i class="dot"></i> ANKIT-SARMISTHA // LOVE NETWORK</span><span>LOCAL SIMULATION v2.6.11</span></div>
+<h1>UNAUTHORIZED LOVE DETECTED</h1><div class="sub">INITIALIZING EXTREMELY DRAMATIC ROMANTIC CYBER-SECURITY PROTOCOL...</div>
+<div class="alert">⚠ DEVICE STATUS: <strong>YOU ARE SO DONE.</strong> <span class="muted">// just kidding, breathe.</span></div>
+<section class="terminal" id="terminal"><div id="log"></div><span class="cursor"></span></section>
+<div class="progressbox">DEPLOYING AFFECTION <span id="percent">0%</span><div class="track"><div id="bar"></div></div></div>
+<section class="reveal" id="reveal"><h2>HAHAHAHA GOT YOU! 💚</h2>
+<p><strong>YOUR DEVICE IS SAFE. NOTHING WAS HACKED.</strong><br>This entire “cyber attack” was created by Ankit<br>for one very special person: <span class="pink">Sarmistha</span>.<br><br>
+<span class="pink">ILOVEYOUSARMISTHA</span><br>You have officially been hacked by an unreasonable amount of love.<br>
+<small>Threat level: 100% cute. Recovery time: unlimited virtual hugs.</small></p>
+<button onclick="replay()">↻ RUN THE DRAMA AGAIN</button></section>
+<div class="footer"><span>NO FILES ACCESSED • NO DATA COLLECTED • PURELY A PRANK</span><span>MADE WITH ♡ BY ANKIT</span></div></main>
+<script>
+const lines=["> booting ANKIT_CORE.kernel ... [OK]","> loading modules: romance, chaos, butterflies ... [OK]","> establishing secure connection to SARMISTHA.exe","> scanning device for cuteness vulnerabilities ...","> WARNING: excessive charm detected","> running fake_encryption.py --mode dramatic","def send_love(target):","    payload = 'ILOVEYOUSARMISTHA'","    while True:","        target.receive(payload)","        print('you are my favourite person <3')","","class AnkitProtocol:","    def __init__(self):","        self.mission = 'make Sarmistha smile'","        self.heart = '100% hers'","","    def execute(self):","        print('ACCESS GRANTED: to my heart')","        return 'ILY x infinity'","","> locating 0 suspicious files ...","> checking photos ... skipped (privacy respected)","> checking messages ... skipped (privacy respected)","> deploying 8,000,000 virtual heart packets ...","> packet status: 💚💚💚💚💚","> compiling cute_message.py ... [OK]","> ERROR: cannot measure how much Ankit loves Sarmistha","> ERROR RESOLVED: answer = TOO MUCH","> preparing final reveal ...","> SYSTEM OVERRIDE: THIS IS A PRANK. DEVICE IS SAFE."];
+let timer=null,index=0;const log=document.getElementById('log'),bar=document.getElementById('bar'),pct=document.getElementById('percent');
+function replay(){clearInterval(timer);index=0;log.innerHTML='';bar.style.width='0%';pct.textContent='0%';document.getElementById('reveal').style.display='none';timer=setInterval(()=>{if(index<lines.length){const el=document.createElement('span');el.className='line';el.textContent=lines[index];if(lines[index].includes('ILOVEYOU')||lines[index].includes('TOO MUCH'))el.classList.add('pink');log.appendChild(el);document.getElementById('terminal').scrollTop=log.scrollHeight;index++;let p=Math.round(index/lines.length*100);bar.style.width=p+'%';pct.textContent=p+'%';}else{clearInterval(timer);document.getElementById('reveal').style.display='block';}},430)}replay();
+const c=document.getElementById('matrix'),ctx=c.getContext('2d');let drops=[];function resize(){c.width=innerWidth;c.height=innerHeight;drops=Array(Math.ceil(c.width/18)).fill(1)}addEventListener('resize',resize);resize();
+setInterval(()=>{ctx.fillStyle='rgba(0,5,2,.08)';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#20d96d';ctx.font='14px monospace';drops.forEach((y,i)=>{ctx.fillText('01アイ♡'[Math.floor(Math.random()*5)],i*18,y*18);if(y*18>c.height&&Math.random()>.975)drops[i]=0;drops[i]++})},55);
+</script></body></html>
